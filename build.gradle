@@ -7,6 +7,12 @@ repositories {
     jcenter()
     mavenCentral()
 }
+sourceSets {
+    integTest {
+        java.srcDir file('src/integTest/java')
+        resources.srcDir file('src/integTest/resources')
+    }
+}
 //Include the jetty runner into the build/server folder
 task copyToLib(type: Copy) {
     into "$buildDir/server"				//Default $buildDir is build/
@@ -16,6 +22,11 @@ task copyToLib(type: Copy) {
             "jetty-runner.jar"   
         }
     }
+}
+task integTest(type: Test) {  
+        testClassesDirs = sourceSets.integTest.output.classesDirs;
+        classpath = sourceSets.integTest.runtimeClasspath;
+        mustRunAfter(test);
 }
 
 //Add to task stage that Heroku to prepare deployment
@@ -28,5 +39,13 @@ dependencies {
     providedCompile 'javax.servlet:javax.servlet-api:3.1.0' 
     compileOnly 'org.eclipse.jetty:jetty-runner:9.4.9.v20180320'
     testCompile 'junit:junit:4.12'
+    integTestCompile configurations.testCompile
+    integTestRuntime configurations.testRuntime
+    integTestCompile sourceSets.main.output
+    integTestCompile sourceSets.test.output
+
+
 }
+
+
 
